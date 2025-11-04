@@ -6,11 +6,13 @@ Una aplicación web responsive para calcular el costo de viajes en vehículos Su
 
 - ✅ **13 Modelos Suzuki** disponibles de IMCRUZ Bolivia
 - ✅ **Integración con Google Maps** para planificación de rutas
+- ✅ **🚦 Tráfico en tiempo real** - Calcula rutas considerando el tráfico actual
 - ✅ **Múltiples opciones de ruta** con comparación de costos
 - ✅ **Precios actualizados** de gasolina en Bolivia (2025)
 - ✅ **Diseño 100% responsive** (móvil, tablet, desktop)
 - ✅ **Modo fallback manual** si Google Maps no está disponible
 - ✅ **Cálculos precisos** basados en consumo real
+- ✅ **Despliegue gratuito** con GitHub Pages
 
 ## 🚀 Cómo Usar
 
@@ -43,10 +45,41 @@ Simplemente abre `index.html` en tu navegador web. No requiere servidor.
 1. **Selecciona tu vehículo Suzuki** del menú desplegable
 2. **Elige el tipo de gasolina** (o ingresa precio personalizado)
 3. **Define tu ruta:**
-   - Ingresa punto de partida (ej: "Santa Cruz, Bolivia")
-   - Ingresa punto de destino (ej: "La Paz, Bolivia")
+   - Ingresa punto de partida (ej: "Plaza Murillo, La Paz" o "Santa Cruz, Bolivia")
+   - Ingresa punto de destino (ej: "Zona Sur, La Paz" o "Cochabamba, Bolivia")
+   - ✅ **Activa "Considerar tráfico en tiempo real"** para rutas urbanas en La Paz y otras ciudades
 4. **Haz clic en "Calcular Ruta y Costo"**
 5. **Revisa los resultados** con múltiples opciones de ruta ordenadas por costo
+
+### 4. 🚦 Tráfico en Tiempo Real
+
+La app incluye soporte para **tráfico en tiempo real** usando Google Maps:
+
+- **Activar:** Marca el checkbox "🚦 Considerar tráfico en tiempo real"
+- **Funciona en:** La Paz, Santa Cruz, Cochabamba y otras ciudades con datos de tráfico
+- **Beneficios:**
+  - Duración estimada más precisa según condiciones actuales
+  - Rutas alternativas para evitar congestión
+  - Visualización de tráfico en el mapa (verde/amarillo/rojo)
+- **Ideal para:** Rutas urbanas, hora pico, planificación de viajes en la ciudad
+
+### 5. 🌐 Desplegar con GitHub Pages (GRATIS)
+
+Puedes publicar tu calculadora en internet gratuitamente:
+
+1. **Ve a tu repositorio en GitHub:**
+   ```
+   Settings > Pages > Source: main branch > Save
+   ```
+
+2. **Tu sitio estará disponible en:**
+   ```
+   https://danidevdc.github.io/trasnporrLPcalc/
+   ```
+
+3. **Guía completa:** Ver archivo [DEPLOY.md](DEPLOY.md) para instrucciones detalladas
+
+**Tiempo de despliegue:** 1-2 minutos ⚡
 
 ## 📊 Modelos Disponibles
 

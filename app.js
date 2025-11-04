@@ -217,6 +217,9 @@ function calculateRouteWithMaps(start, end) {
         return;
     }
 
+    // Check if traffic should be considered
+    const considerTraffic = document.getElementById('considerTraffic').checked;
+
     const request = {
         origin: start,
         destination: end,
@@ -225,9 +228,17 @@ function calculateRouteWithMaps(start, end) {
         region: 'BO' // Bolivia
     };
 
+    // Add traffic model if enabled
+    if (considerTraffic) {
+        request.drivingOptions = {
+            departureTime: new Date(), // Current time for real-time traffic
+            trafficModel: 'bestguess' // 'bestguess', 'pessimistic', or 'optimistic'
+        };
+    }
+
     directionsService.route(request, function(result, status) {
         if (status === 'OK') {
-            processRouteResults(result);
+            processRouteResults(result, considerTraffic);
             directionsRenderer.setDirections(result);
         } else {
             alert('No se pudo calcular la ruta: ' + status + '\n\nPor favor verifica los puntos ingresados.');
@@ -238,14 +249,22 @@ function calculateRouteWithMaps(start, end) {
 /**
  * Process Google Maps route results
  */
-function processRouteResults(result) {
+function processRouteResults(result, considerTraffic) {
     const routes = result.routes;
     const results = [];
 
     routes.forEach((route, index) => {
         const leg = route.legs[0];
         const distanceKm = leg.distance.value / 1000; // Convert meters to km
-        const duration = leg.duration.text;
+
+        // Get duration (with or without traffic)
+        let duration = leg.duration.text;
+        let durationInTraffic = null;
+
+        if (considerTraffic && leg.duration_in_traffic) {
+            durationInTraffic = leg.duration_in_traffic.text;
+            duration = durationInTraffic;
+        }
 
         // Use combined consumption as default
         const consumption = selectedCar.consumption.combined;
@@ -255,6 +274,8 @@ function processRouteResults(result) {
             name: routes.length > 1 ? `Ruta ${index + 1}` : 'Ruta Principal',
             distance: distanceKm,
             duration: duration,
+            durationInTraffic: durationInTraffic,
+            hasTrafficData: considerTraffic,
             consumption: consumption,
             litersNeeded: calculation.litersNeeded,
             cost: calculation.totalCost,
@@ -300,11 +321,15 @@ function createRouteCard(result, isBestOption) {
 
     const badge = isBestOption ? '<span style="background: #28a745; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; margin-left: 10px;">✓ Mejor opción</span>' : '';
 
+    // Add traffic badge if traffic data is available
+    const trafficBadge = result.hasTrafficData ? '<span style="background: #ff9800; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; margin-left: 10px;">🚦 Con tráfico</span>' : '';
+
     card.innerHTML = `
         <div class="route-header">
             <div class="route-name">
                 ${result.name}
                 ${badge}
+                ${trafficBadge}
             </div>
             <div class="route-cost">Bs ${result.cost}</div>
         </div>
@@ -314,7 +339,7 @@ function createRouteCard(result, isBestOption) {
                 <div class="detail-value">${result.distance.toFixed(2)} km</div>
             </div>
             <div class="detail-item">
-                <div class="detail-label">Duración</div>
+                <div class="detail-label">${result.hasTrafficData ? 'Duración (con tráfico)' : 'Duración'}</div>
                 <div class="detail-value">${result.duration}</div>
             </div>
             <div class="detail-item">
@@ -335,6 +360,7 @@ function createRouteCard(result, isBestOption) {
             </div>
         </div>
         ${result.summary ? `<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd; color: #666; font-size: 0.9rem;">📍 ${result.summary}</div>` : ''}
+        ${result.hasTrafficData ? `<div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 6px; color: #856404; font-size: 0.85rem;">ℹ️ El tiempo estimado considera las condiciones de tráfico actuales en tiempo real</div>` : ''}
     `;
 
     return card;
@@ -346,12 +372,12 @@ function createRouteCard(result, isBestOption) {
  */
 function initMap() {
     try {
-        // Initialize map centered on Bolivia
-        const bolivia = { lat: -16.5000, lng: -68.1500 };
+        // Initialize map centered on La Paz, Bolivia
+        const laPaz = { lat: -16.5000, lng: -68.1500 };
 
         map = new google.maps.Map(document.getElementById('map'), {
             zoom: 6,
-            center: bolivia,
+            center: laPaz,
             mapTypeControl: true,
             streetViewControl: false,
             fullscreenControl: true
@@ -365,13 +391,17 @@ function initMap() {
             suppressMarkers: false
         });
 
+        // Add traffic layer to the map
+        const trafficLayer = new google.maps.TrafficLayer();
+        trafficLayer.setMap(map);
+
         // Hide API notice
         const apiNotice = document.getElementById('apiKeyNotice');
         if (apiNotice) {
             apiNotice.style.display = 'none';
         }
 
-        console.log('Google Maps initialized successfully');
+        console.log('Google Maps initialized successfully with traffic layer');
     } catch (error) {
         console.error('Error initializing Google Maps:', error);
     }

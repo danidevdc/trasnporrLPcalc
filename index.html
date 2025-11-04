@@ -77,11 +77,18 @@
                 <div class="route-inputs">
                     <div class="form-group">
                         <label for="startPoint">Punto de Partida</label>
-                        <input type="text" id="startPoint" class="text-input" placeholder="Ej: Santa Cruz, Bolivia">
+                        <input type="text" id="startPoint" class="text-input" placeholder="Ej: Plaza Murillo, La Paz">
                     </div>
                     <div class="form-group">
                         <label for="endPoint">Punto de Destino</label>
-                        <input type="text" id="endPoint" class="text-input" placeholder="Ej: La Paz, Bolivia">
+                        <input type="text" id="endPoint" class="text-input" placeholder="Ej: Zona Sur, La Paz">
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="considerTraffic" checked>
+                            <span>🚦 Considerar tráfico en tiempo real</span>
+                        </label>
+                        <p class="help-text">Calcula el tiempo y la mejor ruta según las condiciones actuales de tráfico</p>
                     </div>
                     <button id="calculateRoute" class="btn btn-primary">
                         📍 Calcular Ruta y Costo
