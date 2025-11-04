@@ -63,6 +63,7 @@ Para que el mapa funcione en tu sitio desplegado:
      - Maps JavaScript API
      - Directions API
      - Places API (opcional pero recomendado)
+     - Elevation API (para análisis de pendientes de La Paz)
 
 2. **Configura restricciones de la API Key:**
    - En Google Cloud Console, ve a "Credentials"

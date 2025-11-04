@@ -7,6 +7,7 @@
 let map;
 let directionsService;
 let directionsRenderer;
+let elevationService;
 let selectedCar = null;
 let currentFuelPrice = 5.96; // Default: Premium+
 
@@ -249,11 +250,13 @@ function calculateRouteWithMaps(start, end) {
 /**
  * Process Google Maps route results
  */
-function processRouteResults(result, considerTraffic) {
+async function processRouteResults(result, considerTraffic) {
     const routes = result.routes;
     const results = [];
 
-    routes.forEach((route, index) => {
+    // Process each route (with elevation data)
+    for (let index = 0; index < routes.length; index++) {
+        const route = routes[index];
         const leg = route.legs[0];
         const distanceKm = leg.distance.value / 1000; // Convert meters to km
 
@@ -266,9 +269,27 @@ function processRouteResults(result, considerTraffic) {
             duration = durationInTraffic;
         }
 
-        // Use combined consumption as default
-        const consumption = selectedCar.consumption.combined;
-        const calculation = calculateFuelCost(distanceKm, consumption, currentFuelPrice);
+        // Get elevation data for this route
+        let elevationData = null;
+        if (elevationService) {
+            try {
+                elevationData = await getRouteElevation(route.overview_path);
+            } catch (error) {
+                console.warn('Could not get elevation data:', error);
+            }
+        }
+
+        // Calculate adjusted consumption based on elevation
+        let baseConsumption = selectedCar.consumption.combined;
+        let adjustedConsumption = baseConsumption;
+        let elevationFactor = 1.0;
+
+        if (elevationData) {
+            elevationFactor = calculateElevationFactor(elevationData, distanceKm);
+            adjustedConsumption = baseConsumption / elevationFactor;
+        }
+
+        const calculation = calculateFuelCost(distanceKm, adjustedConsumption, currentFuelPrice);
 
         results.push({
             name: routes.length > 1 ? `Ruta ${index + 1}` : 'Ruta Principal',
@@ -276,14 +297,94 @@ function processRouteResults(result, considerTraffic) {
             duration: duration,
             durationInTraffic: durationInTraffic,
             hasTrafficData: considerTraffic,
-            consumption: consumption,
+            consumption: adjustedConsumption,
+            baseConsumption: baseConsumption,
             litersNeeded: calculation.litersNeeded,
             cost: calculation.totalCost,
-            summary: route.summary || 'Vía principal'
+            summary: route.summary || 'Vía principal',
+            elevationData: elevationData,
+            elevationFactor: elevationFactor
         });
-    });
+    }
 
     displayResults(results);
+}
+
+/**
+ * Get elevation profile for a route
+ */
+function getRouteElevation(path) {
+    return new Promise((resolve, reject) => {
+        if (!elevationService || !path || path.length === 0) {
+            reject('Elevation service not available');
+            return;
+        }
+
+        // Sample path at intervals (max 512 points for API)
+        const maxSamples = 100;
+        const step = Math.max(1, Math.floor(path.length / maxSamples));
+        const sampledPath = [];
+
+        for (let i = 0; i < path.length; i += step) {
+            sampledPath.push(path[i]);
+        }
+
+        elevationService.getElevationAlongPath({
+            path: sampledPath,
+            samples: sampledPath.length
+        }, function(results, status) {
+            if (status === 'OK' && results) {
+                resolve(results);
+            } else {
+                reject(status);
+            }
+        });
+    });
+}
+
+/**
+ * Calculate elevation factor for fuel consumption adjustment
+ * Returns a factor where:
+ * - 1.0 = flat terrain (no adjustment)
+ * - < 1.0 = mostly uphill (increased consumption)
+ * - > 1.0 = mostly downhill (decreased consumption)
+ */
+function calculateElevationFactor(elevationData, distanceKm) {
+    if (!elevationData || elevationData.length < 2) {
+        return 1.0;
+    }
+
+    let totalClimb = 0;
+    let totalDescent = 0;
+
+    // Calculate total climb and descent
+    for (let i = 1; i < elevationData.length; i++) {
+        const elevChange = elevationData[i].elevation - elevationData[i - 1].elevation;
+        if (elevChange > 0) {
+            totalClimb += elevChange;
+        } else {
+            totalDescent += Math.abs(elevChange);
+        }
+    }
+
+    // Net elevation change
+    const netElevation = elevationData[elevationData.length - 1].elevation - elevationData[0].elevation;
+
+    // Calculate average gradient
+    const avgClimbGradient = totalClimb / (distanceKm * 1000); // meters per meter
+    const avgDescentGradient = totalDescent / (distanceKm * 1000);
+
+    // Elevation factor calculation
+    // Climbing: increases consumption significantly (30-50% for steep climbs)
+    // Descending: reduces consumption but less (10-20% savings)
+    const climbPenalty = avgClimbGradient * 50; // 5% penalty per 0.1 gradient
+    const descentBonus = avgDescentGradient * 15; // 1.5% bonus per 0.1 gradient
+
+    // Final factor (1.0 = no change, <1.0 = more consumption, >1.0 = less consumption)
+    const factor = 1.0 - climbPenalty + descentBonus;
+
+    // Clamp between 0.6 (66% increase) and 1.15 (15% decrease)
+    return Math.max(0.6, Math.min(1.15, factor));
 }
 
 /**
@@ -324,12 +425,82 @@ function createRouteCard(result, isBestOption) {
     // Add traffic badge if traffic data is available
     const trafficBadge = result.hasTrafficData ? '<span style="background: #ff9800; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; margin-left: 10px;">🚦 Con tráfico</span>' : '';
 
+    // Add elevation badge if elevation data is available
+    let elevationBadge = '';
+    if (result.elevationData && result.elevationFactor !== 1.0) {
+        const isUphill = result.elevationFactor < 1.0;
+        const isDownhill = result.elevationFactor > 1.0;
+        const icon = isUphill ? '⛰️' : '⤵️';
+        const text = isUphill ? 'Subidas' : 'Bajadas';
+        const color = isUphill ? '#d32f2f' : '#388e3c';
+        elevationBadge = `<span style="background: ${color}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; margin-left: 10px;">${icon} ${text}</span>`;
+    }
+
+    // Calculate elevation info
+    let elevationInfo = '';
+    if (result.elevationData && result.elevationData.length > 0) {
+        const startElev = result.elevationData[0].elevation;
+        const endElev = result.elevationData[result.elevationData.length - 1].elevation;
+        const netChange = endElev - startElev;
+
+        // Calculate total climb/descent
+        let totalClimb = 0;
+        let totalDescent = 0;
+        for (let i = 1; i < result.elevationData.length; i++) {
+            const change = result.elevationData[i].elevation - result.elevationData[i - 1].elevation;
+            if (change > 0) totalClimb += change;
+            else totalDescent += Math.abs(change);
+        }
+
+        const consumptionChange = ((result.consumption - result.baseConsumption) / result.baseConsumption * 100);
+        const changeText = consumptionChange > 0
+            ? `${Math.abs(consumptionChange).toFixed(0)}% menos consumo`
+            : `${Math.abs(consumptionChange).toFixed(0)}% más consumo`;
+        const changeColor = consumptionChange > 0 ? '#388e3c' : '#d32f2f';
+
+        elevationInfo = `
+            <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #2196F3;">
+                <div style="font-weight: 600; margin-bottom: 10px; color: #1976D2;">⛰️ Análisis de Pendientes</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; font-size: 0.9rem;">
+                    <div>
+                        <div style="color: #666; font-size: 0.8rem;">Elevación inicial</div>
+                        <div style="font-weight: 600;">${startElev.toFixed(0)} m</div>
+                    </div>
+                    <div>
+                        <div style="color: #666; font-size: 0.8rem;">Elevación final</div>
+                        <div style="font-weight: 600;">${endElev.toFixed(0)} m</div>
+                    </div>
+                    <div>
+                        <div style="color: #666; font-size: 0.8rem;">Cambio neto</div>
+                        <div style="font-weight: 600; color: ${netChange >= 0 ? '#d32f2f' : '#388e3c'};">${netChange >= 0 ? '+' : ''}${netChange.toFixed(0)} m</div>
+                    </div>
+                    <div>
+                        <div style="color: #666; font-size: 0.8rem;">Subidas totales</div>
+                        <div style="font-weight: 600; color: #d32f2f;">↗ ${totalClimb.toFixed(0)} m</div>
+                    </div>
+                    <div>
+                        <div style="color: #666; font-size: 0.8rem;">Bajadas totales</div>
+                        <div style="font-weight: 600; color: #388e3c;">↘ ${totalDescent.toFixed(0)} m</div>
+                    </div>
+                    <div>
+                        <div style="color: #666; font-size: 0.8rem;">Impacto en consumo</div>
+                        <div style="font-weight: 600; color: ${changeColor};">${changeText}</div>
+                    </div>
+                </div>
+                <div style="margin-top: 10px; padding: 8px; background: white; border-radius: 4px; font-size: 0.85rem; color: #555;">
+                    💡 Consumo base: ${result.baseConsumption.toFixed(1)} km/l → Ajustado: ${result.consumption.toFixed(1)} km/l
+                </div>
+            </div>
+        `;
+    }
+
     card.innerHTML = `
         <div class="route-header">
             <div class="route-name">
                 ${result.name}
                 ${badge}
                 ${trafficBadge}
+                ${elevationBadge}
             </div>
             <div class="route-cost">Bs ${result.cost}</div>
         </div>
@@ -343,7 +514,7 @@ function createRouteCard(result, isBestOption) {
                 <div class="detail-value">${result.duration}</div>
             </div>
             <div class="detail-item">
-                <div class="detail-label">Consumo</div>
+                <div class="detail-label">Consumo ${result.elevationData ? '(ajustado)' : ''}</div>
                 <div class="detail-value">${result.consumption.toFixed(1)} km/l</div>
             </div>
             <div class="detail-item">
@@ -360,6 +531,7 @@ function createRouteCard(result, isBestOption) {
             </div>
         </div>
         ${result.summary ? `<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd; color: #666; font-size: 0.9rem;">📍 ${result.summary}</div>` : ''}
+        ${elevationInfo}
         ${result.hasTrafficData ? `<div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 6px; color: #856404; font-size: 0.85rem;">ℹ️ El tiempo estimado considera las condiciones de tráfico actuales en tiempo real</div>` : ''}
     `;
 
@@ -391,6 +563,9 @@ function initMap() {
             suppressMarkers: false
         });
 
+        // Initialize elevation service
+        elevationService = new google.maps.ElevationService();
+
         // Add traffic layer to the map
         const trafficLayer = new google.maps.TrafficLayer();
         trafficLayer.setMap(map);
@@ -401,7 +576,7 @@ function initMap() {
             apiNotice.style.display = 'none';
         }
 
-        console.log('Google Maps initialized successfully with traffic layer');
+        console.log('Google Maps initialized successfully with traffic and elevation services');
     } catch (error) {
         console.error('Error initializing Google Maps:', error);
     }
