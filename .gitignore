@@ -1,0 +1,23 @@
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temporary files
+*.tmp
+.cache/
+
+# Environment variables (if API keys are stored)
+.env
+.env.local
+
+# Backup files
+*.bak
+*.backup

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Transporte - Suzuki Bolivia</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🚗 Calculadora de Costo de Transporte</h1>
+            <p class="subtitle">Calcula el costo de tu viaje con vehículos Suzuki en Bolivia</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Step 1: Car Selection -->
+            <section class="card step-card" id="step1">
+                <div class="step-header">
+                    <span class="step-number">1</span>
+                    <h2>Selecciona tu Vehículo Suzuki</h2>
+                </div>
+                <div class="form-group">
+                    <label for="carModel">Modelo de Vehículo</label>
+                    <select id="carModel" class="select-input">
+                        <option value="">-- Selecciona un modelo --</option>
+                    </select>
+                </div>
+                <div id="carDetails" class="car-details hidden">
+                    <div class="detail-row">
+                        <span class="label">Consumo:</span>
+                        <span id="consumption" class="value">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Tipo de Motor:</span>
+                        <span id="engineType" class="value">-</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 2: Fuel Type and Price -->
+            <section class="card step-card" id="step2">
+                <div class="step-header">
+                    <span class="step-number">2</span>
+                    <h2>Tipo de Combustible</h2>
+                </div>
+                <div class="form-group">
+                    <label for="fuelType">Tipo de Gasolina</label>
+                    <select id="fuelType" class="select-input">
+                        <option value="3.74">Gasolina Especial - Bs 3.74/litro</option>
+                        <option value="4.50">Super Etanol 92 - Bs 4.50/litro</option>
+                        <option value="5.96" selected>Gasolina Premium+ - Bs 5.96/litro</option>
+                        <option value="6.82">Ultra Premium 100 - Bs 6.82/litro</option>
+                        <option value="custom">Precio Personalizado</option>
+                    </select>
+                </div>
+                <div id="customPriceGroup" class="form-group hidden">
+                    <label for="customPrice">Precio por Litro (Bs)</label>
+                    <input type="number" id="customPrice" class="text-input" step="0.01" min="0" placeholder="Ej: 5.96">
+                </div>
+                <div class="fuel-price-display">
+                    Precio: <span id="currentFuelPrice">Bs 5.96</span> por litro
+                </div>
+            </section>
+
+            <!-- Step 3: Route Selection -->
+            <section class="card step-card" id="step3">
+                <div class="step-header">
+                    <span class="step-number">3</span>
+                    <h2>Define tu Ruta</h2>
+                </div>
+                <div class="route-inputs">
+                    <div class="form-group">
+                        <label for="startPoint">Punto de Partida</label>
+                        <input type="text" id="startPoint" class="text-input" placeholder="Ej: Santa Cruz, Bolivia">
+                    </div>
+                    <div class="form-group">
+                        <label for="endPoint">Punto de Destino</label>
+                        <input type="text" id="endPoint" class="text-input" placeholder="Ej: La Paz, Bolivia">
+                    </div>
+                    <button id="calculateRoute" class="btn btn-primary">
+                        📍 Calcular Ruta y Costo
+                    </button>
+                </div>
+
+                <!-- Map Container -->
+                <div id="map" class="map-container"></div>
+
+                <!-- API Key Notice -->
+                <div id="apiKeyNotice" class="api-notice">
+                    <p>⚠️ <strong>Configuración de Google Maps API requerida</strong></p>
+                    <p>Para usar el mapa, necesitas una API Key de Google Maps. Sigue estos pasos:</p>
+                    <ol>
+                        <li>Ve a <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
+                        <li>Crea un proyecto y habilita "Maps JavaScript API" y "Directions API"</li>
+                        <li>Genera una API Key</li>
+                        <li>Reemplaza 'TU_API_KEY_AQUI' en index.html con tu API Key</li>
+                    </ol>
+                    <p>📖 <a href="https://developers.google.com/maps/documentation/javascript/get-api-key" target="_blank">Guía oficial</a></p>
+                </div>
+            </section>
+
+            <!-- Step 4: Results -->
+            <section class="card step-card hidden" id="step4">
+                <div class="step-header">
+                    <span class="step-number">4</span>
+                    <h2>Resultados del Cálculo</h2>
+                </div>
+                <div id="routeResults" class="route-results">
+                    <!-- Results will be dynamically inserted here -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Calculadora de Transporte para vehículos Suzuki IMCRUZ Bolivia</p>
+            <p class="disclaimer">Los precios son referenciales. Consumo real puede variar según condiciones de manejo.</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="car-data.js"></script>
+    <script src="app.js"></script>
+    <!-- Google Maps API - Replace TU_API_KEY_AQUI with your actual API key -->
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=TU_API_KEY_AQUI&libraries=places&callback=initMap">
+    </script>
+</body>
+</html>
