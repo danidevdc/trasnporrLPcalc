@@ -867,9 +867,38 @@ body::before {
     }
 
     /* Route results optimization for mobile */
+    .route-option {
+        padding: 14px;
+    }
+
+    .route-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .route-name {
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+        line-height: 1.4;
+        width: 100%;
+    }
+
+    /* Make badges wrap and be smaller on mobile */
+    .route-name span {
+        display: inline-block;
+        margin: 4px 4px 4px 0 !important;
+        font-size: 0.7rem !important;
+        padding: 3px 8px !important;
+        white-space: nowrap;
+    }
+
     .route-cost {
         font-size: 1.5rem;
         padding: 10px 16px;
+        width: 100%;
+        text-align: center;
     }
 
     .route-details {
@@ -921,6 +950,36 @@ body::before {
     .api-notice ol,
     .api-notice ul {
         padding-left: 20px;
+    }
+
+    /* Optimize inline elevation info for mobile */
+    .elevation-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        font-size: 0.8rem !important;
+    }
+
+    .elevation-grid > div {
+        font-size: 0.75rem !important;
+    }
+
+    .elevation-grid > div > div:first-child {
+        font-size: 0.68rem !important;
+        margin-bottom: 2px;
+    }
+
+    .elevation-grid > div > div:last-child {
+        font-size: 0.85rem !important;
+    }
+
+    /* Route summary and info boxes */
+    .route-option > div[style*="margin-top"] {
+        font-size: 0.8rem !important;
+        padding: 8px !important;
+    }
+
+    .route-option div[style*="⛰️"] {
+        font-size: 0.85rem !important;
     }
 }
 

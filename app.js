@@ -527,13 +527,13 @@ function createRouteCard(result, isBestOption) {
         elevationInfo = `
             <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #2196F3;">
                 <div style="font-weight: 600; margin-bottom: 10px; color: #1976D2;">⛰️ Análisis de Pendientes</div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; font-size: 0.9rem;">
+                <div class="elevation-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; font-size: 0.9rem;">
                     <div>
-                        <div style="color: #666; font-size: 0.8rem;">Elevación inicial</div>
+                        <div style="color: #666; font-size: 0.8rem;">Elev. inicial</div>
                         <div style="font-weight: 600;">${startElev.toFixed(0)} m</div>
                     </div>
                     <div>
-                        <div style="color: #666; font-size: 0.8rem;">Elevación final</div>
+                        <div style="color: #666; font-size: 0.8rem;">Elev. final</div>
                         <div style="font-weight: 600;">${endElev.toFixed(0)} m</div>
                     </div>
                     <div>
@@ -541,20 +541,20 @@ function createRouteCard(result, isBestOption) {
                         <div style="font-weight: 600; color: ${netChange >= 0 ? '#d32f2f' : '#388e3c'};">${netChange >= 0 ? '+' : ''}${netChange.toFixed(0)} m</div>
                     </div>
                     <div>
-                        <div style="color: #666; font-size: 0.8rem;">Subidas totales</div>
+                        <div style="color: #666; font-size: 0.8rem;">Subidas</div>
                         <div style="font-weight: 600; color: #d32f2f;">↗ ${totalClimb.toFixed(0)} m</div>
                     </div>
                     <div>
-                        <div style="color: #666; font-size: 0.8rem;">Bajadas totales</div>
+                        <div style="color: #666; font-size: 0.8rem;">Bajadas</div>
                         <div style="font-weight: 600; color: #388e3c;">↘ ${totalDescent.toFixed(0)} m</div>
                     </div>
                     <div>
-                        <div style="color: #666; font-size: 0.8rem;">Impacto en consumo</div>
+                        <div style="color: #666; font-size: 0.8rem;">Impacto</div>
                         <div style="font-weight: 600; color: ${changeColor};">${changeText}</div>
                     </div>
                 </div>
                 <div style="margin-top: 10px; padding: 8px; background: white; border-radius: 4px; font-size: 0.85rem; color: #555;">
-                    💡 Consumo base: ${result.baseConsumption.toFixed(1)} km/l → Ajustado: ${result.consumption.toFixed(1)} km/l
+                    💡 Base: ${result.baseConsumption.toFixed(1)} km/l → Ajustado: ${result.consumption.toFixed(1)} km/l
                 </div>
             </div>
         `;
