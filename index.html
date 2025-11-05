@@ -82,29 +82,29 @@
                 <div class="route-inputs">
                     <div class="form-group">
                         <label for="startPoint">Punto de Partida</label>
-                        <div class="input-with-buttons">
-                            <input type="text" id="startPoint" class="text-input" placeholder="Elige con 🗺️ o 📍">
-                            <button type="button" id="useCurrentLocationStart" class="btn-icon" title="Usar mi ubicación actual">
-                                📍
+                        <input type="text" id="startPoint" class="text-input" placeholder="Selecciona usando los botones de abajo" readonly>
+                        <div class="button-row">
+                            <button type="button" id="useCurrentLocationStart" class="btn-location">
+                                📍 Mi Ubicación
                             </button>
-                            <button type="button" id="pickFromMapStart" class="btn-icon" title="Seleccionar en el mapa">
-                                🗺️
+                            <button type="button" id="pickFromMapStart" class="btn-map">
+                                🗺️ Clic en Mapa
                             </button>
                         </div>
-                        <small class="help-text">Usa 🗺️ (haz clic en el mapa) o 📍 (tu ubicación actual)</small>
+                        <small class="help-text"><strong>📍 Mi Ubicación</strong> = Usa el GPS de tu celular/PC | <strong>🗺️ Clic en Mapa</strong> = Haz clic donde quieras en el mapa</small>
                     </div>
                     <div class="form-group">
                         <label for="endPoint">Punto de Destino</label>
-                        <div class="input-with-buttons">
-                            <input type="text" id="endPoint" class="text-input" placeholder="Elige con 🗺️ o 📍">
-                            <button type="button" id="useCurrentLocationEnd" class="btn-icon" title="Usar mi ubicación actual">
-                                📍
+                        <input type="text" id="endPoint" class="text-input" placeholder="Selecciona usando los botones de abajo" readonly>
+                        <div class="button-row">
+                            <button type="button" id="useCurrentLocationEnd" class="btn-location">
+                                📍 Mi Ubicación
                             </button>
-                            <button type="button" id="pickFromMapEnd" class="btn-icon" title="Seleccionar en el mapa">
-                                🗺️
+                            <button type="button" id="pickFromMapEnd" class="btn-map">
+                                🗺️ Clic en Mapa
                             </button>
                         </div>
-                        <small class="help-text">Usa 🗺️ (haz clic en el mapa) o 📍 (tu ubicación actual)</small>
+                        <small class="help-text"><strong>📍 Mi Ubicación</strong> = Usa el GPS de tu celular/PC | <strong>🗺️ Clic en Mapa</strong> = Haz clic donde quieras en el mapa</small>
                     </div>
                     <div class="form-group">
                         <label class="checkbox-label">
@@ -122,16 +122,21 @@
                 <div id="map" class="map-container"></div>
 
                 <!-- API Key Notice -->
-                <div id="apiKeyNotice" class="api-notice">
-                    <p>⚠️ <strong>Configuración de Google Maps API requerida</strong></p>
-                    <p>Para usar el mapa, necesitas una API Key de Google Maps. Sigue estos pasos:</p>
+                <div id="apiKeyNotice" class="api-notice" style="display: none;">
+                    <p>⚠️ <strong>Problema con Google Maps API</strong></p>
+                    <p><strong>Si ves el mensaje "This page can't load Google Maps correctly"</strong>, significa que:</p>
                     <ol>
-                        <li>Ve a <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
-                        <li>Crea un proyecto y habilita "Maps JavaScript API" y "Directions API"</li>
-                        <li>Genera una API Key</li>
-                        <li>Reemplaza 'TU_API_KEY_AQUI' en index.html con tu API Key</li>
+                        <li><strong>❌ NO HAY FACTURACIÓN ACTIVA:</strong> Google Maps requiere que agregues una tarjeta de crédito en Google Cloud Console (aunque tengas $200 gratis al mes)</li>
+                        <li><strong>🔑 API Key incorrecta:</strong> La API key podría estar mal configurada</li>
+                        <li><strong>🚫 APIs no habilitadas:</strong> Debes habilitar "Maps JavaScript API", "Geocoding API" y "Directions API"</li>
                     </ol>
-                    <p>📖 <a href="https://developers.google.com/maps/documentation/javascript/get-api-key" target="_blank">Guía oficial</a></p>
+                    <p><strong>🛠️ Para solucionarlo:</strong></p>
+                    <ul>
+                        <li>Ve a <a href="https://console.cloud.google.com/billing" target="_blank">Google Cloud Billing</a> y agrega una tarjeta</li>
+                        <li>Ve a <a href="https://console.cloud.google.com/apis/library" target="_blank">API Library</a> y habilita las 3 APIs mencionadas</li>
+                        <li>Verifica tu API Key en <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Credentials</a></li>
+                    </ul>
+                    <p>📖 <a href="https://developers.google.com/maps/documentation/javascript/get-api-key" target="_blank">Guía oficial completa</a></p>
                 </div>
             </section>
 

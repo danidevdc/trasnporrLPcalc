@@ -786,6 +786,17 @@ function initMap() {
 }
 
 /**
+ * Detect Google Maps errors and show helpful notice
+ */
+function gm_authFailure() {
+    const apiNotice = document.getElementById('apiKeyNotice');
+    if (apiNotice) {
+        apiNotice.style.display = 'block';
+    }
+    alert('⚠️ ERROR DE GOOGLE MAPS\n\nNo se puede cargar Google Maps. El problema más común es:\n\n❌ NO HAY FACTURACIÓN ACTIVA en Google Cloud\n\nGoogle Maps REQUIERE que agregues una tarjeta de crédito (aunque tienes $200 gratis al mes).\n\n✅ Solución:\n1. Ve a console.cloud.google.com/billing\n2. Agrega una cuenta de facturación con tarjeta\n3. Habilita las APIs necesarias\n\nRevisa el mensaje naranja abajo del mapa para más detalles.');
+}
+
+/**
  * Fallback if Google Maps fails to load
  */
 window.addEventListener('load', function() {
@@ -793,12 +804,19 @@ window.addEventListener('load', function() {
         if (typeof google === 'undefined') {
             console.warn('Google Maps API not loaded. Manual distance input will be available.');
             const mapContainer = document.getElementById('map');
-            mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f0f0f0; color: #666; text-align: center; padding: 20px;">Google Maps no está disponible.<br>Usa el botón de calcular para ingresar la distancia manualmente.</div>';
+            const apiNotice = document.getElementById('apiKeyNotice');
+
+            mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f0f0f0; color: #666; text-align: center; padding: 20px;">⚠️ Google Maps no está disponible.<br><br>Revisa la configuración de API Key y facturación.</div>';
+
+            if (apiNotice) {
+                apiNotice.style.display = 'block';
+            }
         }
     }, 3000);
 });
 
-// Make initMap available globally for Google Maps callback
+// Make functions available globally for Google Maps callback
 if (typeof window !== 'undefined') {
     window.initMap = initMap;
+    window.gm_authFailure = gm_authFailure;
 }
