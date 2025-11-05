@@ -8,38 +8,39 @@
 }
 
 :root {
-    /* Rally Theme - Yellow/Amber Racing Colors */
-    --primary-color: #FFC107;
-    --primary-dark: #FF8F00;
-    --primary-light: #FFD54F;
-    --secondary-color: #212121;
-    --secondary-light: #424242;
-    --accent-color: #FFB300;
+    /* Rally Theme - Taupe & Burnt Orange Racing Colors */
+    --primary-color: #ff6501;        /* Burnt Orange - Principal */
+    --primary-dark: #cc5100;         /* Burnt Orange oscuro */
+    --primary-light: #ff8534;        /* Burnt Orange claro */
+    --secondary-color: #2d2834;      /* Cool Gray - Texto/Fondos */
+    --secondary-light: #4a4456;      /* Cool Gray claro */
+    --accent-color: #c9bea5;         /* Sand Dollar - Acentos */
+    --accent-light: #e1d7d7;         /* Taupe - Fondos claros */
     --success-color: #66BB6A;
-    --warning-color: #FF9800;
+    --warning-color: #ff6501;
     --danger-color: #EF5350;
     --light-gray: #F5F5F5;
-    --medium-gray: #BDBDBD;
-    --dark-gray: #212121;
-    --text-color: #212121;
-    --text-light: #757575;
+    --medium-gray: #c9bea5;
+    --dark-gray: #2d2834;
+    --text-color: #2d2834;
+    --text-light: #6a6572;
     --border-radius: 8px;
-    --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    --shadow-hover: 0 8px 24px rgba(255, 193, 7, 0.3);
-    --shadow-strong: 0 6px 20px rgba(0, 0, 0, 0.25);
+    --shadow: 0 4px 12px rgba(45, 40, 52, 0.15);
+    --shadow-hover: 0 8px 24px rgba(255, 101, 1, 0.25);
+    --shadow-strong: 0 6px 20px rgba(45, 40, 52, 0.25);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --rally-stripes: repeating-linear-gradient(
         45deg,
         transparent,
         transparent 10px,
-        rgba(255, 193, 7, 0.1) 10px,
-        rgba(255, 193, 7, 0.1) 20px
+        rgba(255, 101, 1, 0.08) 10px,
+        rgba(255, 101, 1, 0.08) 20px
     );
 }
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+    background: linear-gradient(135deg, #2d2834 0%, #4a4456 50%, #2d2834 100%);
     position: relative;
     color: var(--text-color);
     line-height: 1.6;
@@ -99,7 +100,7 @@ body::before {
         var(--primary-dark) 50%,
         var(--primary-color) 100%
     );
-    box-shadow: 0 2px 10px rgba(255, 193, 7, 0.5);
+    box-shadow: 0 2px 10px rgba(255, 101, 1, 0.5);
 }
 
 .header::after {
@@ -123,7 +124,7 @@ body::before {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    filter: drop-shadow(2px 2px 4px rgba(255, 193, 7, 0.3));
+    filter: drop-shadow(2px 2px 4px rgba(255, 101, 1, 0.3));
 }
 
 .subtitle {
@@ -164,7 +165,7 @@ body::before {
     width: 6px;
     height: 100%;
     background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
-    box-shadow: 2px 0 8px rgba(255, 193, 7, 0.4);
+    box-shadow: 2px 0 8px rgba(255, 101, 1, 0.4);
 }
 
 .card:hover {
@@ -194,7 +195,7 @@ body::before {
     width: 60px;
     height: 3px;
     background: var(--primary-dark);
-    box-shadow: 0 2px 6px rgba(255, 143, 0, 0.4);
+    box-shadow: 0 2px 6px rgba(204, 81, 0, 0.4);
 }
 
 .step-number {
@@ -209,7 +210,7 @@ body::before {
     font-weight: 900;
     font-size: 1.5rem;
     flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+    box-shadow: 0 4px 12px rgba(255, 101, 1, 0.4);
     border: 2px solid var(--primary-dark);
     transform: rotate(-3deg);
 }
@@ -253,7 +254,7 @@ body::before {
 .text-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
+    box-shadow: 0 0 0 3px rgba(255, 101, 1, 0.2);
 }
 
 .select-input:hover,
@@ -270,16 +271,16 @@ body::before {
     font-weight: 600;
     color: var(--dark-gray);
     padding: 12px;
-    background: linear-gradient(135deg, #FFF9E6, #FFFAED);
-    border: 2px solid var(--primary-light);
+    background: linear-gradient(135deg, var(--accent-light), #f0ebe5);
+    border: 2px solid var(--accent-color);
     border-radius: 8px;
     transition: var(--transition);
 }
 
 .checkbox-label:hover {
-    background: linear-gradient(135deg, #FFF4CC, #FFF9E6);
+    background: linear-gradient(135deg, #f0ebe5, var(--accent-color));
     border-color: var(--primary-color);
-    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
+    box-shadow: 0 2px 8px rgba(255, 101, 1, 0.2);
 }
 
 .checkbox-label input[type="checkbox"] {
@@ -344,7 +345,7 @@ body::before {
     color: var(--secondary-color);
     width: 100%;
     margin-top: 10px;
-    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+    box-shadow: 0 4px 15px rgba(255, 101, 1, 0.4);
     border: 2px solid var(--primary-dark);
     position: relative;
     z-index: 1;
@@ -353,12 +354,12 @@ body::before {
 .btn-primary:hover {
     background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(255, 193, 7, 0.6);
+    box-shadow: 0 6px 20px rgba(255, 101, 1, 0.6);
 }
 
 .btn-primary:active {
     transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(255, 193, 7, 0.4);
+    box-shadow: 0 3px 10px rgba(255, 101, 1, 0.4);
 }
 
 .btn:disabled {
@@ -373,18 +374,18 @@ body::before {
    Car Details - Rally Style
    ==================================== */
 .car-details {
-    background: linear-gradient(135deg, #FFFAED, #FFF9E6);
+    background: linear-gradient(135deg, var(--accent-light), #f0ebe5);
     padding: 20px;
     border-radius: 8px;
     margin-top: 15px;
-    border: 2px solid var(--primary-light);
+    border: 2px solid var(--accent-color);
 }
 
 .detail-row {
     display: flex;
     justify-content: space-between;
     padding: 12px 0;
-    border-bottom: 2px solid var(--primary-light);
+    border-bottom: 2px solid var(--accent-color);
 }
 
 .detail-row:last-child {
@@ -418,7 +419,7 @@ body::before {
     margin-top: 15px;
     color: white;
     border: 3px solid var(--primary-color);
-    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 101, 1, 0.3);
 }
 
 #currentFuelPrice {
@@ -450,7 +451,7 @@ body::before {
 }
 
 .route-option {
-    background: linear-gradient(135deg, #ffffff, #FFFAED);
+    background: linear-gradient(135deg, #ffffff, var(--accent-light));
     border: 3px solid var(--medium-gray);
     border-left: 8px solid var(--primary-color);
     border-radius: 8px;
@@ -469,19 +470,19 @@ body::before {
     width: 8px;
     height: 100%;
     background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
-    box-shadow: 3px 0 12px rgba(255, 193, 7, 0.5);
+    box-shadow: 3px 0 12px rgba(255, 101, 1, 0.5);
 }
 
 .route-option:hover {
     border-color: var(--primary-color);
-    box-shadow: 0 8px 24px rgba(255, 193, 7, 0.3);
+    box-shadow: 0 8px 24px rgba(255, 101, 1, 0.3);
     transform: translateY(-3px) translateX(2px);
 }
 
 .route-option.selected {
     border-color: var(--primary-dark);
-    background: linear-gradient(135deg, #FFF9E6, #FFE082);
-    box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+    background: linear-gradient(135deg, var(--accent-light), var(--accent-color));
+    box-shadow: 0 6px 20px rgba(255, 101, 1, 0.4);
 }
 
 .route-option.selected::after {
@@ -514,7 +515,7 @@ body::before {
     font-size: 1.8rem;
     font-weight: 900;
     color: var(--primary-dark);
-    text-shadow: 2px 2px 4px rgba(255, 143, 0, 0.2);
+    text-shadow: 2px 2px 4px rgba(204, 81, 0, 0.2);
     padding: 8px 16px;
     background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
     border-radius: 6px;
@@ -532,7 +533,7 @@ body::before {
     flex-direction: column;
     gap: 6px;
     padding: 10px;
-    background: rgba(255, 249, 230, 0.5);
+    background: rgba(225, 215, 215, 0.4);
     border-radius: 6px;
     border-left: 3px solid var(--primary-color);
 }
@@ -638,7 +639,7 @@ body::before {
     display: inline-block;
     width: 24px;
     height: 24px;
-    border: 4px solid rgba(255, 193, 7, 0.2);
+    border: 4px solid rgba(255, 101, 1, 0.2);
     border-radius: 50%;
     border-top-color: var(--primary-color);
     border-right-color: var(--primary-dark);
