@@ -539,6 +539,36 @@ function createRouteCard(result, isBestOption) {
 }
 
 /**
+ * Initialize Google Places Autocomplete for address inputs
+ * Configures autocomplete for both start and end point fields
+ * Restricts results to Bolivia with focus on La Paz
+ */
+function initializeAutocomplete() {
+    const startInput = document.getElementById('startPoint');
+    const endInput = document.getElementById('endPoint');
+
+    // Configuration for autocomplete
+    const autocompleteOptions = {
+        componentRestrictions: { country: 'bo' }, // Restrict to Bolivia
+        fields: ['formatted_address', 'geometry', 'name', 'place_id'],
+        types: ['address', 'establishment', 'geocode'],
+        // Bias results towards La Paz, Bolivia
+        locationBias: {
+            center: { lat: -16.5000, lng: -68.1500 }, // La Paz coordinates
+            radius: 50000 // 50km radius
+        }
+    };
+
+    // Initialize autocomplete for start point
+    const startAutocomplete = new google.maps.places.Autocomplete(startInput, autocompleteOptions);
+
+    // Initialize autocomplete for end point
+    const endAutocomplete = new google.maps.places.Autocomplete(endInput, autocompleteOptions);
+
+    console.log('✅ Address autocomplete initialized for La Paz, Bolivia');
+}
+
+/**
  * Initialize Google Maps
  * This function is called by the Google Maps API callback
  */
@@ -569,6 +599,9 @@ function initMap() {
         // Add traffic layer to the map
         const trafficLayer = new google.maps.TrafficLayer();
         trafficLayer.setMap(map);
+
+        // Initialize Places Autocomplete for address inputs
+        initializeAutocomplete();
 
         // Hide API notice
         const apiNotice = document.getElementById('apiKeyNotice');
