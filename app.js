@@ -249,8 +249,37 @@ function calculateRouteWithMaps(startLoc, endLoc) {
         if (status === 'OK') {
             processRouteResults(result, considerTraffic);
             directionsRenderer.setDirections(result);
+        } else if (status === 'REQUEST_DENIED') {
+            // Specific error for REQUEST_DENIED
+            const apiNotice = document.getElementById('apiKeyNotice');
+            if (apiNotice) {
+                apiNotice.style.display = 'block';
+                apiNotice.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            alert(
+                '🚫 ERROR: REQUEST_DENIED\n\n' +
+                '❌ La API de Directions está BLOQUEADA\n\n' +
+                'Esto significa que:\n' +
+                '1. NO HAY FACTURACIÓN ACTIVA en tu proyecto de Google Cloud\n' +
+                '2. O la "Directions API" NO ESTÁ HABILITADA\n\n' +
+                '✅ SOLUCIÓN:\n\n' +
+                'PASO 1: Agregar Facturación\n' +
+                '→ Ve a: console.cloud.google.com/billing\n' +
+                '→ Click en "Vincular cuenta de facturación"\n' +
+                '→ Agrega tu tarjeta (tienes $200 gratis/mes)\n\n' +
+                'PASO 2: Habilitar Directions API\n' +
+                '→ Ve a: console.cloud.google.com/apis/library\n' +
+                '→ Busca "Directions API"\n' +
+                '→ Click en "HABILITAR"\n\n' +
+                'PASO 3: También habilita estas APIs:\n' +
+                '→ Maps JavaScript API\n' +
+                '→ Geocoding API\n\n' +
+                '⚠️ Sin facturación activa, NINGUNA API funcionará.\n\n' +
+                'Revisa el mensaje naranja abajo del mapa para más detalles.'
+            );
         } else {
-            alert('No se pudo calcular la ruta: ' + status + '\n\nPor favor verifica los puntos ingresados.');
+            alert('No se pudo calcular la ruta: ' + status + '\n\nError: ' + status + '\n\nPor favor verifica los puntos ingresados.');
         }
     });
 }
