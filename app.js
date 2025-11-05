@@ -32,6 +32,60 @@ function initializeApp() {
     populateCarModels();
     setupEventListeners();
     updateFuelPriceDisplay();
+    restoreSavedPreferences();
+    autoGetCurrentLocation();
+}
+
+/**
+ * Restore saved preferences from localStorage
+ */
+function restoreSavedPreferences() {
+    // Restore car selection
+    const savedCarId = localStorage.getItem('selectedCarId');
+    if (savedCarId) {
+        const carModelSelect = document.getElementById('carModel');
+        carModelSelect.value = savedCarId;
+        // Trigger change event to update UI
+        const event = new Event('change');
+        carModelSelect.dispatchEvent(event);
+    }
+
+    // Restore fuel type selection
+    const savedFuelType = localStorage.getItem('selectedFuelType');
+    if (savedFuelType) {
+        const fuelTypeSelect = document.getElementById('fuelType');
+        fuelTypeSelect.value = savedFuelType;
+        // Trigger change event to update UI
+        const event = new Event('change');
+        fuelTypeSelect.dispatchEvent(event);
+    }
+}
+
+/**
+ * Auto-get current location on page load
+ */
+function autoGetCurrentLocation() {
+    if (!navigator.geolocation) {
+        document.getElementById('startPoint').value = 'Geolocalización no disponible';
+        return;
+    }
+
+    document.getElementById('startPoint').value = '🔄 Obteniendo tu ubicación...';
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const location = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            setStartLocation(location);
+        },
+        (error) => {
+            console.error('Geolocation error:', error);
+            document.getElementById('startPoint').value = '❌ No se pudo obtener ubicación (permite acceso al GPS)';
+            document.getElementById('startPoint').placeholder = 'Haz clic aquí y permite acceso a ubicación';
+        }
+    );
 }
 
 /**
@@ -87,6 +141,8 @@ function handleCarSelection(e) {
     if (!carId) {
         carDetails.classList.add('hidden');
         selectedCar = null;
+        // Clear from localStorage
+        localStorage.removeItem('selectedCarId');
         return;
     }
 
@@ -99,6 +155,9 @@ function handleCarSelection(e) {
         document.getElementById('engineType').textContent = selectedCar.engineType;
 
         carDetails.classList.remove('hidden');
+
+        // Save to localStorage for next visit
+        localStorage.setItem('selectedCarId', carId);
     }
 }
 
@@ -119,6 +178,12 @@ function handleFuelTypeChange(e) {
     }
 
     updateFuelPriceDisplay();
+
+    // Save to localStorage for next visit
+    localStorage.setItem('selectedFuelType', value);
+    if (value !== 'custom') {
+        localStorage.setItem('fuelPrice', currentFuelPrice.toString());
+    }
 }
 
 /**
@@ -608,15 +673,10 @@ function createRouteCard(result, isBestOption) {
  * Setup map interaction - click to select points and get current location
  */
 function setupMapInteraction() {
-    const startInput = document.getElementById('startPoint');
     const endInput = document.getElementById('endPoint');
-
-    const pickStartBtn = document.getElementById('pickFromMapStart');
     const pickEndBtn = document.getElementById('pickFromMapEnd');
-    const useLocationStartBtn = document.getElementById('useCurrentLocationStart');
-    const useLocationEndBtn = document.getElementById('useCurrentLocationEnd');
 
-    // Click on map to select location
+    // Click on map to select destination location
     map.addListener('click', (event) => {
         if (!pickingMode) return;
 
@@ -625,10 +685,7 @@ function setupMapInteraction() {
             lng: event.latLng.lng()
         };
 
-        if (pickingMode === 'start') {
-            setStartLocation(location);
-            pickStartBtn.classList.remove('active');
-        } else if (pickingMode === 'end') {
+        if (pickingMode === 'end') {
             setEndLocation(location);
             pickEndBtn.classList.remove('active');
         }
@@ -637,44 +694,21 @@ function setupMapInteraction() {
         map.setOptions({ draggableCursor: null });
     });
 
-    // Pick from map buttons
-    pickStartBtn.addEventListener('click', () => {
-        pickingMode = 'start';
-        pickStartBtn.classList.add('active');
-        pickEndBtn.classList.remove('active');
-        map.setOptions({ draggableCursor: 'crosshair' });
-        startInput.placeholder = '👆 Haz clic en el mapa...';
-    });
-
+    // Pick destination from map button
     pickEndBtn.addEventListener('click', () => {
         pickingMode = 'end';
         pickEndBtn.classList.add('active');
-        pickStartBtn.classList.remove('active');
         map.setOptions({ draggableCursor: 'crosshair' });
-        endInput.placeholder = '👆 Haz clic en el mapa...';
+        endInput.placeholder = '👆 Haz clic en el mapa para marcar destino...';
     });
 
-    // Use current location buttons
-    useLocationStartBtn.addEventListener('click', () => {
-        getCurrentLocation((location) => {
-            setStartLocation(location);
-        });
-    });
-
-    useLocationEndBtn.addEventListener('click', () => {
-        getCurrentLocation((location) => {
-            setEndLocation(location);
-        });
-    });
-
-    console.log('✅ Map interaction initialized - click to select points');
+    console.log('✅ Map interaction initialized - click to select destination');
 }
 
 /**
- * Setup Google Places Autocomplete for search functionality
+ * Setup Google Places Autocomplete for destination search
  */
 function setupPlacesAutocomplete() {
-    const startInput = document.getElementById('startPoint');
     const endInput = document.getElementById('endPoint');
 
     // Autocomplete options - biased towards Bolivia and La Paz
@@ -688,33 +722,11 @@ function setupPlacesAutocomplete() {
         }
     };
 
-    // Create autocomplete for start point
-    const startAutocomplete = new google.maps.places.Autocomplete(startInput, autocompleteOptions);
-    startAutocomplete.bindTo('bounds', map);
-
-    // Handle place selection for start point
-    startAutocomplete.addListener('place_changed', () => {
-        const place = startAutocomplete.getPlace();
-
-        if (!place.geometry || !place.geometry.location) {
-            alert('No se pudo obtener la ubicación de: ' + place.name);
-            return;
-        }
-
-        const location = {
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng()
-        };
-
-        setStartLocation(location);
-        startInput.value = place.formatted_address || place.name;
-    });
-
-    // Create autocomplete for end point
+    // Create autocomplete only for destination
     const endAutocomplete = new google.maps.places.Autocomplete(endInput, autocompleteOptions);
     endAutocomplete.bindTo('bounds', map);
 
-    // Handle place selection for end point
+    // Handle place selection for destination
     endAutocomplete.addListener('place_changed', () => {
         const place = endAutocomplete.getPlace();
 
@@ -732,7 +744,7 @@ function setupPlacesAutocomplete() {
         endInput.value = place.formatted_address || place.name;
     });
 
-    console.log('✅ Places Autocomplete initialized for Bolivia');
+    console.log('✅ Places Autocomplete initialized for destination');
 }
 
 /**

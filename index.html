@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Route Calculator - Bolivia | Calculadora de Rutas</title>
-    <link rel="stylesheet" href="styles.css?v=mobile-cards-v5">
+    <link rel="stylesheet" href="styles.css?v=simplified-flow-v6">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -81,30 +81,19 @@
                 </div>
                 <div class="route-inputs">
                     <div class="form-group">
-                        <label for="startPoint">Punto de Partida</label>
-                        <input type="text" id="startPoint" class="text-input" placeholder="Escribe un lugar o usa los botones">
-                        <div class="button-row">
-                            <button type="button" id="useCurrentLocationStart" class="btn-location">
-                                📍 Mi Ubicación
-                            </button>
-                            <button type="button" id="pickFromMapStart" class="btn-map">
-                                🗺️ Clic en Mapa
-                            </button>
-                        </div>
-                        <small class="help-text"><strong>Escribe</strong> para buscar lugares | <strong>📍</strong> = GPS | <strong>🗺️</strong> = Clic en mapa</small>
+                        <label for="startPoint">📍 Tu Ubicación Actual</label>
+                        <input type="text" id="startPoint" class="text-input" placeholder="Obteniendo tu ubicación..." readonly>
+                        <small class="help-text">Se usa automáticamente tu ubicación GPS como punto de partida</small>
                     </div>
                     <div class="form-group">
-                        <label for="endPoint">Punto de Destino</label>
-                        <input type="text" id="endPoint" class="text-input" placeholder="Escribe un lugar o usa los botones">
+                        <label for="endPoint">🎯 ¿A dónde vas?</label>
+                        <input type="text" id="endPoint" class="text-input" placeholder="Escribe un lugar o marca en el mapa">
                         <div class="button-row">
-                            <button type="button" id="useCurrentLocationEnd" class="btn-location">
-                                📍 Mi Ubicación
-                            </button>
                             <button type="button" id="pickFromMapEnd" class="btn-map">
-                                🗺️ Clic en Mapa
+                                🗺️ Marcar en Mapa
                             </button>
                         </div>
-                        <small class="help-text"><strong>Escribe</strong> para buscar lugares | <strong>📍</strong> = GPS | <strong>🗺️</strong> = Clic en mapa</small>
+                        <small class="help-text"><strong>Escribe</strong> para buscar | <strong>🗺️</strong> = Marca el destino en el mapa</small>
                     </div>
                     <div class="form-group">
                         <label class="checkbox-label">
