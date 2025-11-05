@@ -11,6 +11,13 @@ let elevationService;
 let selectedCar = null;
 let currentFuelPrice = 5.96; // Default: Premium+
 
+// Map interaction variables
+let startMarker = null;
+let endMarker = null;
+let startLocation = null;
+let endLocation = null;
+let pickingMode = null; // 'start' or 'end'
+
 /**
  * Initialize the application when DOM is loaded
  */
@@ -136,17 +143,14 @@ function updateFuelPriceDisplay() {
  * Handle calculate route button click
  */
 function handleCalculateRoute() {
-    const startPoint = document.getElementById('startPoint').value.trim();
-    const endPoint = document.getElementById('endPoint').value.trim();
-
     // Validation
     if (!selectedCar) {
         alert('Por favor selecciona un modelo de vehículo primero.');
         return;
     }
 
-    if (!startPoint || !endPoint) {
-        alert('Por favor ingresa el punto de partida y destino.');
+    if (!startLocation || !endLocation) {
+        alert('Por favor selecciona el punto de partida y destino usando los botones 📍 o 🗺️.');
         return;
     }
 
@@ -157,8 +161,8 @@ function handleCalculateRoute() {
         return;
     }
 
-    // Calculate route with Google Maps
-    calculateRouteWithMaps(startPoint, endPoint);
+    // Calculate route with Google Maps using the selected locations
+    calculateRouteWithMaps(startLocation, endLocation);
 }
 
 /**
@@ -212,7 +216,7 @@ function displayManualRouteResult(distance, start, end) {
 /**
  * Calculate route using Google Maps API
  */
-function calculateRouteWithMaps(start, end) {
+function calculateRouteWithMaps(startLoc, endLoc) {
     if (!directionsService) {
         showManualDistanceInput();
         return;
@@ -221,9 +225,13 @@ function calculateRouteWithMaps(start, end) {
     // Check if traffic should be considered
     const considerTraffic = document.getElementById('considerTraffic').checked;
 
+    // Convert location objects to LatLng if needed
+    const origin = new google.maps.LatLng(startLoc.lat, startLoc.lng);
+    const destination = new google.maps.LatLng(endLoc.lat, endLoc.lng);
+
     const request = {
-        origin: start,
-        destination: end,
+        origin: origin,
+        destination: destination,
         travelMode: google.maps.TravelMode.DRIVING,
         provideRouteAlternatives: true,
         region: 'BO' // Bolivia
@@ -539,33 +547,195 @@ function createRouteCard(result, isBestOption) {
 }
 
 /**
- * Initialize Google Places Autocomplete for address inputs
- * Configures autocomplete for both start and end point fields
- * Restricts results to Bolivia with focus on La Paz
+ * Setup map interaction - click to select points and get current location
  */
-function initializeAutocomplete() {
+function setupMapInteraction() {
     const startInput = document.getElementById('startPoint');
     const endInput = document.getElementById('endPoint');
 
-    // Configuration for autocomplete
-    const autocompleteOptions = {
-        componentRestrictions: { country: 'bo' }, // Restrict to Bolivia
-        fields: ['formatted_address', 'geometry', 'name', 'place_id'],
-        types: ['address', 'establishment', 'geocode'],
-        // Bias results towards La Paz, Bolivia
-        locationBias: {
-            center: { lat: -16.5000, lng: -68.1500 }, // La Paz coordinates
-            radius: 50000 // 50km radius
+    const pickStartBtn = document.getElementById('pickFromMapStart');
+    const pickEndBtn = document.getElementById('pickFromMapEnd');
+    const useLocationStartBtn = document.getElementById('useCurrentLocationStart');
+    const useLocationEndBtn = document.getElementById('useCurrentLocationEnd');
+
+    // Click on map to select location
+    map.addListener('click', (event) => {
+        if (!pickingMode) return;
+
+        const location = {
+            lat: event.latLng.lat(),
+            lng: event.latLng.lng()
+        };
+
+        if (pickingMode === 'start') {
+            setStartLocation(location);
+            pickStartBtn.classList.remove('active');
+        } else if (pickingMode === 'end') {
+            setEndLocation(location);
+            pickEndBtn.classList.remove('active');
         }
-    };
 
-    // Initialize autocomplete for start point
-    const startAutocomplete = new google.maps.places.Autocomplete(startInput, autocompleteOptions);
+        pickingMode = null;
+        map.setOptions({ draggableCursor: null });
+    });
 
-    // Initialize autocomplete for end point
-    const endAutocomplete = new google.maps.places.Autocomplete(endInput, autocompleteOptions);
+    // Pick from map buttons
+    pickStartBtn.addEventListener('click', () => {
+        pickingMode = 'start';
+        pickStartBtn.classList.add('active');
+        pickEndBtn.classList.remove('active');
+        map.setOptions({ draggableCursor: 'crosshair' });
+        startInput.placeholder = '👆 Haz clic en el mapa...';
+    });
 
-    console.log('✅ Address autocomplete initialized for La Paz, Bolivia');
+    pickEndBtn.addEventListener('click', () => {
+        pickingMode = 'end';
+        pickEndBtn.classList.add('active');
+        pickStartBtn.classList.remove('active');
+        map.setOptions({ draggableCursor: 'crosshair' });
+        endInput.placeholder = '👆 Haz clic en el mapa...';
+    });
+
+    // Use current location buttons
+    useLocationStartBtn.addEventListener('click', () => {
+        getCurrentLocation((location) => {
+            setStartLocation(location);
+        });
+    });
+
+    useLocationEndBtn.addEventListener('click', () => {
+        getCurrentLocation((location) => {
+            setEndLocation(location);
+        });
+    });
+
+    console.log('✅ Map interaction initialized - click to select points');
+}
+
+/**
+ * Get current location using browser geolocation
+ */
+function getCurrentLocation(callback) {
+    if (!navigator.geolocation) {
+        alert('Tu navegador no soporta geolocalización');
+        return;
+    }
+
+    const startInput = document.getElementById('startPoint');
+    const endInput = document.getElementById('endPoint');
+
+    startInput.value = 'Obteniendo ubicación...';
+    endInput.value = 'Obteniendo ubicación...';
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const location = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            callback(location);
+        },
+        (error) => {
+            alert('No se pudo obtener tu ubicación. Asegúrate de permitir el acceso.');
+            console.error('Geolocation error:', error);
+            startInput.value = '';
+            endInput.value = '';
+        }
+    );
+}
+
+/**
+ * Set start location and update marker
+ */
+function setStartLocation(location) {
+    startLocation = location;
+
+    // Remove old marker
+    if (startMarker) {
+        startMarker.setMap(null);
+    }
+
+    // Create new marker
+    startMarker = new google.maps.Marker({
+        position: location,
+        map: map,
+        title: 'Punto de Partida',
+        icon: {
+            url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+        },
+        draggable: true
+    });
+
+    // Update location if marker is dragged
+    startMarker.addListener('dragend', (event) => {
+        startLocation = {
+            lat: event.latLng.lat(),
+            lng: event.latLng.lng()
+        };
+        reverseGeocode(startLocation, 'startPoint');
+    });
+
+    // Get address for this location
+    reverseGeocode(location, 'startPoint');
+
+    // Center map on new location
+    map.panTo(location);
+    map.setZoom(14);
+}
+
+/**
+ * Set end location and update marker
+ */
+function setEndLocation(location) {
+    endLocation = location;
+
+    // Remove old marker
+    if (endMarker) {
+        endMarker.setMap(null);
+    }
+
+    // Create new marker
+    endMarker = new google.maps.Marker({
+        position: location,
+        map: map,
+        title: 'Punto de Destino',
+        icon: {
+            url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+        },
+        draggable: true
+    });
+
+    // Update location if marker is dragged
+    endMarker.addListener('dragend', (event) => {
+        endLocation = {
+            lat: event.latLng.lat(),
+            lng: event.latLng.lng()
+        };
+        reverseGeocode(endLocation, 'endPoint');
+    });
+
+    // Get address for this location
+    reverseGeocode(location, 'endPoint');
+
+    // Center map on new location
+    map.panTo(location);
+    map.setZoom(14);
+}
+
+/**
+ * Convert coordinates to address (reverse geocoding)
+ */
+function reverseGeocode(location, inputId) {
+    const geocoder = new google.maps.Geocoder();
+    const input = document.getElementById(inputId);
+
+    geocoder.geocode({ location: location }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+            input.value = results[0].formatted_address;
+        } else {
+            input.value = `${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}`;
+        }
+    });
 }
 
 /**
@@ -600,8 +770,8 @@ function initMap() {
         const trafficLayer = new google.maps.TrafficLayer();
         trafficLayer.setMap(map);
 
-        // Initialize Places Autocomplete for address inputs
-        initializeAutocomplete();
+        // Setup map interaction for clicking and location selection
+        setupMapInteraction();
 
         // Hide API notice
         const apiNotice = document.getElementById('apiKeyNotice');

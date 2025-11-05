@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Route Calculator - Bolivia | Calculadora de Rutas</title>
-    <link rel="stylesheet" href="styles.css?v=route-calc-v2">
+    <link rel="stylesheet" href="styles.css?v=map-interaction-v3">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -82,11 +82,29 @@
                 <div class="route-inputs">
                     <div class="form-group">
                         <label for="startPoint">Punto de Partida</label>
-                        <input type="text" id="startPoint" class="text-input" placeholder="Ej: Plaza Murillo, La Paz">
+                        <div class="input-with-buttons">
+                            <input type="text" id="startPoint" class="text-input" placeholder="Elige con 🗺️ o 📍">
+                            <button type="button" id="useCurrentLocationStart" class="btn-icon" title="Usar mi ubicación actual">
+                                📍
+                            </button>
+                            <button type="button" id="pickFromMapStart" class="btn-icon" title="Seleccionar en el mapa">
+                                🗺️
+                            </button>
+                        </div>
+                        <small class="help-text">Usa 🗺️ (haz clic en el mapa) o 📍 (tu ubicación actual)</small>
                     </div>
                     <div class="form-group">
                         <label for="endPoint">Punto de Destino</label>
-                        <input type="text" id="endPoint" class="text-input" placeholder="Ej: Zona Sur, La Paz">
+                        <div class="input-with-buttons">
+                            <input type="text" id="endPoint" class="text-input" placeholder="Elige con 🗺️ o 📍">
+                            <button type="button" id="useCurrentLocationEnd" class="btn-icon" title="Usar mi ubicación actual">
+                                📍
+                            </button>
+                            <button type="button" id="pickFromMapEnd" class="btn-icon" title="Seleccionar en el mapa">
+                                🗺️
+                            </button>
+                        </div>
+                        <small class="help-text">Usa 🗺️ (haz clic en el mapa) o 📍 (tu ubicación actual)</small>
                     </div>
                     <div class="form-group">
                         <label class="checkbox-label">

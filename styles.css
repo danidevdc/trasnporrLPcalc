@@ -269,6 +269,50 @@ body::before {
     box-shadow: 0 0 0 3px rgba(255, 101, 1, 0.2);
 }
 
+/* Input with buttons layout */
+.input-with-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.input-with-buttons .text-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 2px solid var(--primary-color);
+    background: white;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon:hover {
+    background: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 101, 1, 0.3);
+}
+
+.btn-icon:active {
+    transform: translateY(0);
+}
+
+.btn-icon.active {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 0 0 3px rgba(255, 101, 1, 0.2);
+}
+
 .select-input:hover,
 .text-input:hover {
     border-color: var(--primary-color);
