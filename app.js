@@ -143,14 +143,32 @@ function updateFuelPriceDisplay() {
  * Handle calculate route button click
  */
 function handleCalculateRoute() {
+    const startInput = document.getElementById('startPoint');
+    const endInput = document.getElementById('endPoint');
+
     // Validation
     if (!selectedCar) {
         alert('Por favor selecciona un modelo de vehículo primero.');
         return;
     }
 
+    // Check if locations are set (either from autocomplete, map click, or GPS)
     if (!startLocation || !endLocation) {
-        alert('Por favor selecciona el punto de partida y destino usando los botones 📍 o 🗺️.');
+        const startText = startInput.value.trim();
+        const endText = endInput.value.trim();
+
+        if (!startText || !endText) {
+            alert(
+                'Por favor define el punto de partida y destino:\n\n' +
+                '✍️ Escribe un lugar (ej: "Plaza Murillo")\n' +
+                '📍 Usa tu ubicación GPS\n' +
+                '🗺️ Haz clic en el mapa'
+            );
+            return;
+        }
+
+        // If text is entered but no location, try to use the text as address
+        calculateRouteWithMaps(startText, endText);
         return;
     }
 
@@ -225,9 +243,20 @@ function calculateRouteWithMaps(startLoc, endLoc) {
     // Check if traffic should be considered
     const considerTraffic = document.getElementById('considerTraffic').checked;
 
-    // Convert location objects to LatLng if needed
-    const origin = new google.maps.LatLng(startLoc.lat, startLoc.lng);
-    const destination = new google.maps.LatLng(endLoc.lat, endLoc.lng);
+    // Convert location objects to LatLng if they are objects, otherwise use as string
+    let origin, destination;
+
+    if (typeof startLoc === 'object' && startLoc.lat && startLoc.lng) {
+        origin = new google.maps.LatLng(startLoc.lat, startLoc.lng);
+    } else {
+        origin = startLoc; // Use as address string
+    }
+
+    if (typeof endLoc === 'object' && endLoc.lat && endLoc.lng) {
+        destination = new google.maps.LatLng(endLoc.lat, endLoc.lng);
+    } else {
+        destination = endLoc; // Use as address string
+    }
 
     const request = {
         origin: origin,
@@ -642,6 +671,71 @@ function setupMapInteraction() {
 }
 
 /**
+ * Setup Google Places Autocomplete for search functionality
+ */
+function setupPlacesAutocomplete() {
+    const startInput = document.getElementById('startPoint');
+    const endInput = document.getElementById('endPoint');
+
+    // Autocomplete options - biased towards Bolivia and La Paz
+    const autocompleteOptions = {
+        componentRestrictions: { country: 'bo' },
+        fields: ['formatted_address', 'geometry', 'name', 'place_id'],
+        types: ['address', 'establishment', 'geocode'],
+        locationBias: {
+            center: { lat: -16.5000, lng: -68.1500 }, // La Paz
+            radius: 50000 // 50km
+        }
+    };
+
+    // Create autocomplete for start point
+    const startAutocomplete = new google.maps.places.Autocomplete(startInput, autocompleteOptions);
+    startAutocomplete.bindTo('bounds', map);
+
+    // Handle place selection for start point
+    startAutocomplete.addListener('place_changed', () => {
+        const place = startAutocomplete.getPlace();
+
+        if (!place.geometry || !place.geometry.location) {
+            alert('No se pudo obtener la ubicación de: ' + place.name);
+            return;
+        }
+
+        const location = {
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng()
+        };
+
+        setStartLocation(location);
+        startInput.value = place.formatted_address || place.name;
+    });
+
+    // Create autocomplete for end point
+    const endAutocomplete = new google.maps.places.Autocomplete(endInput, autocompleteOptions);
+    endAutocomplete.bindTo('bounds', map);
+
+    // Handle place selection for end point
+    endAutocomplete.addListener('place_changed', () => {
+        const place = endAutocomplete.getPlace();
+
+        if (!place.geometry || !place.geometry.location) {
+            alert('No se pudo obtener la ubicación de: ' + place.name);
+            return;
+        }
+
+        const location = {
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng()
+        };
+
+        setEndLocation(location);
+        endInput.value = place.formatted_address || place.name;
+    });
+
+    console.log('✅ Places Autocomplete initialized for Bolivia');
+}
+
+/**
  * Get current location using browser geolocation
  */
 function getCurrentLocation(callback) {
@@ -801,6 +895,9 @@ function initMap() {
 
         // Setup map interaction for clicking and location selection
         setupMapInteraction();
+
+        // Setup Places Autocomplete for text search
+        setupPlacesAutocomplete();
 
         // Hide API notice
         const apiNotice = document.getElementById('apiKeyNotice');
