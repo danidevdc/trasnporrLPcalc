@@ -1,0 +1,64 @@
+name: Deploy to GitHub Pages
+
+# Se ejecuta cuando haces push a la rama principal
+on:
+  push:
+    branches: [ claude/responsive-maps-calculator-011CUoJiqbUrArN9QvWM96yS, main ]
+
+# Permisos necesarios para GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Solo un deploy a la vez
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Crear config.js con API Key desde Secret
+        run: |
+          echo "const CONFIG = {" > config.js
+          echo "    GOOGLE_MAPS_API_KEY: '${{ secrets.GOOGLE_MAPS_API_KEY }}'" >> config.js
+          echo "};" >> config.js
+          echo "✅ config.js creado con API Key desde GitHub Secret"
+
+      - name: Verificar que config.js existe
+        run: |
+          if [ -f config.js ]; then
+            echo "✅ config.js existe"
+            echo "Primeras líneas del archivo (sin mostrar la key):"
+            head -n 1 config.js
+          else
+            echo "❌ ERROR: config.js no se creó"
+            exit 1
+          fi
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: Subir archivos a GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy a GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Resumen del deploy
+        run: |
+          echo "🚀 Deploy completado"
+          echo "📍 URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "✅ config.js inyectado con API Key desde Secret"
