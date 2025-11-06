@@ -149,12 +149,31 @@
     </div>
 
     <!-- Scripts -->
+    <!-- Configuration (must be loaded first) -->
+    <script src="config.js"></script>
     <script src="car-data.js"></script>
     <script src="app.js"></script>
-    <!-- Google Maps API - Reemplaza TU_API_KEY_AQUI con tu API Key real -->
-    <!-- Ejemplo: AIzaSyBxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAo0_4KhSyqbKQabaJa1l3y9j_Mu-WgBk&libraries=places&callback=initMap">
+    <!-- Google Maps API - API Key loaded from config.js -->
+    <!-- To setup: Copy config.example.js to config.js and add your API Key -->
+    <script>
+        // Dynamically load Google Maps with API key from config
+        (function() {
+            if (typeof CONFIG === 'undefined' || !CONFIG.GOOGLE_MAPS_API_KEY || CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_API_KEY_HERE') {
+                console.error('⚠️ Google Maps API Key not configured!');
+                console.error('📝 Instructions:');
+                console.error('1. Copy config.example.js to config.js');
+                console.error('2. Add your Google Maps API Key in config.js');
+                console.error('3. Refresh the page');
+                document.getElementById('map').innerHTML = '<div style="padding: 40px; text-align: center; color: #d32f2f;"><h3>⚠️ Configuración Requerida</h3><p>Copia <strong>config.example.js</strong> a <strong>config.js</strong> y agrega tu Google Maps API Key.</p><p>Ver consola para más detalles.</p></div>';
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${CONFIG.GOOGLE_MAPS_API_KEY}&libraries=places&callback=initMap`;
+            script.async = true;
+            script.defer = true;
+            document.body.appendChild(script);
+        })();
     </script>
 </body>
 </html>

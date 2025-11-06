@@ -18,6 +18,9 @@ npm-debug.log*
 .env
 .env.local
 
+# Configuration file with sensitive API keys
+config.js
+
 # Backup files
 *.bak
 *.backup
