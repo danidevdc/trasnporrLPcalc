@@ -2,6 +2,14 @@
 
 Una aplicación web responsive para calcular el costo de viajes en vehículos Suzuki en Bolivia, integrando Google Maps y datos actualizados de consumo de combustible.
 
+## English overview
+
+A web application for estimating trip fuel costs from distance, vehicle fuel consumption and fuel prices. It supports manual distance entry and optional Google Maps integration for route planning.
+
+**Technologies:** HTML, CSS and JavaScript.
+
+**Portfolio focus:** configurable inputs, route comparison and calculated outputs. Results are estimates based on the input data; the fuel prices documented below are historical values from 2025.
+
 ## 📋 Características
 
 - ✅ **13 Modelos Suzuki** disponibles de IMCRUZ Bolivia
